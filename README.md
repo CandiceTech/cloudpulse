@@ -1,232 +1,216 @@
 # CloudPulse
 
-CloudPulse is an AWS cloud cost optimization platform built to help identify underutilized infrastructure, reduce unnecessary cloud spending, and provide better visibility into AWS resource usage.
+CloudPulse is an AWS cloud cost optimization and FinOps visibility platform. I built it to practice cloud engineering with a project that connects to real AWS-style workflows: cost tracking, EC2 utilization, S3 optimization, recommendations, dashboards, Docker, and CI/CD.
 
-I originally started this project to get more hands-on experience with AWS, cloud operations, and backend engineering while building something that solves a real business problem.
+The project has a FastAPI backend and a React dashboard. It can run in demo mode with mock AWS data, so the platform is easy to test without needing AWS credentials.
 
-Instead of creating another basic CRUD app, I wanted to build a platform that interacts directly with AWS services and provides meaningful operational insights.
+## What CloudPulse Does
 
----
+CloudPulse helps answer questions like:
 
-# What CloudPulse Does
+- Which EC2 instances look idle or underused?
+- How much money could be saved by stopping or downsizing resources?
+- Which S3 buckets may need lifecycle policies?
+- What are the monthly and annual savings opportunities?
+- Which resources should be reviewed first?
 
-CloudPulse currently:
+## Current Features
 
-* Pulls AWS billing data using the Cost Explorer API
-* Displays service-level AWS spending
-* Detects potentially idle EC2 instances
-* Analyzes CloudWatch CPU utilization metrics
-* Estimates monthly and annual savings opportunities
-* Generates infrastructure optimization recommendations
-* Assigns risk levels based on utilization patterns
+- FastAPI backend
+- React/Vite frontend dashboard
+- Demo mode with realistic mock AWS optimization data
+- AWS Cost Explorer integration path
+- EC2 utilization and rightsizing recommendations
+- S3 optimization recommendations
+- Cloud optimization summary endpoint
+- Risk levels for resources
+- Estimated monthly and annual savings
+- Dockerfile for backend containerization
+- GitHub Actions CI for backend tests, frontend build, and Docker build
 
----
+## Tech Stack
 
-# Current Features
+Backend:
 
-## AWS Cost Explorer Integration
+- Python
+- FastAPI
+- Boto3
+- Pytest
 
-Retrieve:
+Frontend:
 
-* Monthly AWS costs
-* Service-by-service spending breakdowns
+- React
+- Vite
+- Recharts
+- Tailwind/PostCSS
 
-### Example Endpoint
+Cloud and DevOps:
 
-```bash
-/costs/monthly
-/costs/services
+- AWS EC2
+- AWS CloudWatch
+- AWS Cost Explorer
+- AWS S3
+- Docker
+- GitHub Actions
+
+## Project Structure
+
+```text
+app/
+  aws/
+  routes/
+  services/
+  main.py
+
+cloudpulse/frontend/
+  src/
+  package.json
+
+tests/
+Dockerfile
+requirements.txt
 ```
 
----
+## Running The Backend
 
-## EC2 Optimization Engine
-
-Analyze EC2 usage and identify low-utilization resources.
-
-### Features
-
-* EC2 instance discovery
-* CPU utilization analysis
-* Estimated monthly costs
-* Potential savings calculations
-* Rightsizing recommendations
-* Risk scoring
-
-### Example Response
-
-```json
-[
-  {
-    "instance_id": "i-123456",
-    "current_instance_type": "t3.micro",
-    "recommended_instance_type": "t3.micro",
-    "avg_cpu": 1.69,
-    "estimated_monthly_cost": 8.5,
-    "potential_monthly_savings": 8.5,
-    "estimated_annual_savings": 102,
-    "risk_level": "HIGH",
-    "recommendation": "Potentially idle - consider stopping"
-  }
-]
-```
-
----
-
-# Tech Stack
-
-## Backend
-
-* Python
-* FastAPI
-* Boto3
-
-## AWS Services
-
-* EC2
-* CloudWatch
-* Cost Explorer API
-* IAM
-
-## Planned Infrastructure
-
-* Docker
-* Kubernetes
-* Terraform
-* PostgreSQL
-* Grafana
-
----
-
-# Project Structure
-
-```bash
-backend/
-│
-├── app/
-│   ├── aws/
-│   ├── routes/
-│   ├── services/
-│   └── main.py
-│
-├── requirements.txt
-├── Dockerfile
-└── .env
-```
-
----
-
-# Running the Project
-
-## Clone the Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/cloudpulse.git
-```
-
-## Navigate Into the Project
-
-```bash
-cd cloudpulse
-```
-
-## Create a Virtual Environment
-
-### Windows
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
----
-
-## Install Dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+pip install pytest httpx
 ```
 
----
-
-# Configure AWS Credentials
-
-Install the AWS CLI and run:
+Run the API in demo mode:
 
 ```bash
-aws configure
-```
-
-You will need:
-
-* AWS Access Key
-* AWS Secret Access Key
-* Default region
-
----
-
-# Start the API
-
-```bash
+set CLOUDPULSE_USE_MOCKS=true
 python -m uvicorn app.main:app --reload
 ```
 
 Swagger documentation:
 
-```bash
+```text
 http://127.0.0.1:8000/docs
 ```
 
----
+Health check:
 
-# Why I Built This
+```text
+http://127.0.0.1:8000/health
+```
 
-One thing I noticed while learning cloud engineering is that companies often waste money on infrastructure simply because they lack visibility.
+## Running The Frontend
 
-Idle EC2 instances, forgotten resources, and oversized infrastructure can quietly increase monthly cloud bills.
+```bash
+cd cloudpulse/frontend
+npm install
+npm run dev
+```
 
-I built CloudPulse to better understand:
+The frontend expects the backend at:
 
-* AWS infrastructure APIs
-* CloudWatch metrics
-* cloud cost optimization
-* backend architecture
-* operational tooling
-* FinOps concepts
+```text
+http://localhost:8000
+```
 
-This project has also helped me get more practical experience working with real AWS services instead of only following tutorials.
+## Demo Mode
 
----
+By default, CloudPulse uses mock data so the project works without AWS credentials.
 
-# Roadmap
+```bash
+CLOUDPULSE_USE_MOCKS=true
+```
 
-Planned features:
+To connect to real AWS APIs later, configure AWS credentials and set:
 
-* Docker containerization
-* React frontend dashboard
-* Authentication and RBAC
-* PostgreSQL integration
-* Terraform support
-* Multi-account AWS support
-* Automated remediation
-* Slack/email alerts
-* Grafana dashboards
-* Kubernetes deployment
-* CI/CD pipelines
+```bash
+CLOUDPULSE_USE_MOCKS=false
+```
 
----
+## API Endpoints
 
-# Future Goals
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/` | API status |
+| `GET` | `/health` | Health check and demo mode status |
+| `GET` | `/costs/monthly` | Monthly AWS cost summary |
+| `GET` | `/costs/services` | Service-level AWS cost breakdown |
+| `GET` | `/ec2/idle` | EC2 utilization and optimization recommendations |
+| `GET` | `/s3/analyze` | S3 storage optimization recommendations |
+| `GET` | `/analytics/summary` | Combined savings and risk summary |
 
-The long-term goal is to evolve CloudPulse into a more complete cloud operations and FinOps platform capable of:
+## Example Optimization Response
 
-* identifying cloud waste
-* monitoring infrastructure health
-* improving operational visibility
-* helping teams optimize AWS spending
+```json
+{
+  "instance_id": "i-0a12cloudpulse001",
+  "current_instance_type": "t3.large",
+  "recommended_instance_type": "t3.medium",
+  "avg_cpu": 2.4,
+  "estimated_monthly_cost": 60.0,
+  "potential_monthly_savings": 60.0,
+  "estimated_annual_savings": 720.0,
+  "risk_level": "HIGH",
+  "recommendation": "Potentially idle - consider stopping"
+}
+```
 
----
+## Testing
 
-# Author
+Run backend tests:
 
-Built by Candy Scar
+```bash
+pytest -q
+```
+
+Run frontend build:
+
+```bash
+cd cloudpulse/frontend
+npm run build
+```
+
+## Docker
+
+Build the backend image:
+
+```bash
+docker build -t cloudpulse-api .
+```
+
+Run the backend container:
+
+```bash
+docker run -p 8000:8000 -e CLOUDPULSE_USE_MOCKS=true cloudpulse-api
+```
+
+## CI/CD
+
+The GitHub Actions workflow validates:
+
+- Backend tests
+- Frontend production build
+- Docker image build
+
+This gives the project a basic DevOps pipeline and keeps the app testable as features are added.
+
+## What I Learned
+
+This project helped me practice AWS cost optimization concepts, API design, frontend/backend integration, mock data for local development, Docker containerization, and CI/CD.
+
+One important improvement was adding demo mode. Without it, the app depends on AWS credentials and live AWS data. With demo mode, the project can be reviewed, tested, and demonstrated anywhere.
+
+## Future Improvements
+
+- Add Terraform AWS infrastructure
+- Add authentication
+- Add PostgreSQL for storing optimization history
+- Add real S3 live analysis
+- Add multi-account AWS support
+- Add Slack or email alerts
+- Add Grafana dashboards
+- Add automated remediation workflows
+
+## Author
+
+Candice Scarborough

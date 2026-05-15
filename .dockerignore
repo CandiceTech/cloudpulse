@@ -1,0 +1,10 @@
+.git
+.github
+__pycache__
+*.pyc
+venv
+.env
+.pytest_cache
+cloudpulse/frontend/node_modules
+cloudpulse/frontend/dist
+cloudpulse/frontend/.vite

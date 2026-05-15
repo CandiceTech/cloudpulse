@@ -1,9 +1,10 @@
 import boto3
 from datetime import datetime, timedelta, timezone
+from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 
-# AWS Clients
-ec2 = boto3.client("ec2")
-cloudwatch = boto3.client("cloudwatch")
+from app.aws.mock_data import MOCK_EC2_INSTANCES
+from app.config import use_mock_data
+
 
 # Estimated monthly EC2 pricing
 INSTANCE_PRICING = {
@@ -23,8 +24,20 @@ RIGHTSIZING_MAP = {
 
 
 def get_idle_instances():
+    if use_mock_data():
+        return MOCK_EC2_INSTANCES
 
-    response = ec2.describe_instances()
+    ec2 = boto3.client("ec2")
+    cloudwatch = boto3.client("cloudwatch")
+
+    try:
+        response = ec2.describe_instances()
+    except (BotoCoreError, ClientError, NoCredentialsError) as exc:
+        return {
+            "error": "Unable to read EC2 data from AWS",
+            "detail": str(exc),
+            "hint": "Set CLOUDPULSE_USE_MOCKS=true for local demo mode or configure AWS credentials."
+        }
 
     idle_instances = []
 
